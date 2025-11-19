@@ -23,10 +23,8 @@ class MyPanelButton extends PanelMenu.Button {
     super(0.0, 'MyPanelButton');
 
     // Create an icon
-    let hbox = new St.BoxLayout();
     this._icon = new St.Icon({ icon_name: 'system-run-symbolic', style_class: 'system-status-icon' });
-    hbox.add_child(this._icon);
-    this.add_child(hbox);
+    this.add_child(this._icon);
 
     const menuItem = new PopupMenu.PopupMenuItem('Item Label', {
       style_class: 'my-menu-item',
