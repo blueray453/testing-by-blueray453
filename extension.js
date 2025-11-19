@@ -12,29 +12,39 @@ import { setLogging, setLogFn, journal } from './utils.js'
 
 let myButton;
 
-const MyPanelButton = GObject.registerClass(
-  class MyPanelButton extends PanelMenu.Button {
-    _init() {
-      super._init(0.0, 'MyPanelButton');
 
-      // Create an icon
-      let hbox = new St.BoxLayout();
-      this._icon = new St.Icon({ icon_name: 'system-run-symbolic', style_class: 'system-status-icon' });
-      hbox.add_child(this._icon);
-      this.add_child(hbox);
+class MyPanelButton extends PanelMenu.Button {
 
-      // Handle left and right click
-      this.connect('button-press-event', (actor, event) => {
-        let button = event.get_button();
-        if (button === Clutter.BUTTON_PRIMARY) { // left click
-          journal(`Left click detected!`);
-        } else if (button === Clutter.BUTTON_SECONDARY) { // right click
-          journal(`Right click detected!`);
-        }
-        return Clutter.EVENT_STOP; // prevent default
-      });
-    }
-  });
+  static {
+    GObject.registerClass(this);
+  }
+
+  constructor() {
+    super(0.0, 'MyPanelButton');
+
+    // Create an icon
+    let hbox = new St.BoxLayout();
+    this._icon = new St.Icon({ icon_name: 'system-run-symbolic', style_class: 'system-status-icon' });
+    hbox.add_child(this._icon);
+    this.add_child(hbox);
+
+    const menuItem = new PopupMenu.PopupMenuItem('Item Label', {
+      style_class: 'my-menu-item',
+    });
+
+    // Handle left and right click
+    this.connect('button-press-event', (actor, event) => {
+      let button = event.get_button();
+      if (button === Clutter.BUTTON_PRIMARY) { // left click
+        journal(`Left click detected!`);
+        menuItem.setOrnament(PopupMenu.Ornament.CHECK);
+      } else if (button === Clutter.BUTTON_SECONDARY) { // right click
+        journal(`Right click detected!`);
+      }
+      return Clutter.EVENT_STOP; // prevent default
+    });
+  }
+}
 
 export default class MyExtension extends Extension {
   constructor(metadata) {
