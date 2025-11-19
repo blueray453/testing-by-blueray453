@@ -117,7 +117,7 @@ export default class MyExtension extends Extension {
     journal(`Enabled`);
 
     this.myButton = new MyPanelButton();
-    Main.panel.addToStatusArea('my-button', myButton);
+    Main.panel.addToStatusArea('my-button', this.myButton);
   }
 
   disable() {
