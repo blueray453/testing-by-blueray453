@@ -1,8 +1,41 @@
 import GLib from 'gi://GLib';
+
+import Clutter from 'gi://Clutter';
+import GObject from 'gi://GObject';
+import St from 'gi://St';
+import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+
 import { setLogging, setLogFn, journal } from './utils.js'
 
-export default class NotificationThemeExtension extends Extension {
+let myButton;
+
+const MyPanelButton = GObject.registerClass(
+  class MyPanelButton extends PanelMenu.Button {
+    _init() {
+      super._init(0.0, 'MyPanelButton');
+
+      // Create an icon
+      let hbox = new St.BoxLayout();
+      this._icon = new St.Icon({ icon_name: 'system-run-symbolic', style_class: 'system-status-icon' });
+      hbox.add_child(this._icon);
+      this.add_child(hbox);
+
+      // Handle left and right click
+      this.connect('button-press-event', (actor, event) => {
+        let button = event.get_button();
+        if (button === Clutter.BUTTON_PRIMARY) { // left click
+          journal(`Left click detected!`);
+        } else if (button === Clutter.BUTTON_SECONDARY) { // right click
+          journal(`Right click detected!`);
+        }
+        return Clutter.EVENT_STOP; // prevent default
+      });
+    }
+  });
+
+export default class MyExtension extends Extension {
   constructor(metadata) {
     super(metadata);
   }
@@ -32,34 +65,14 @@ export default class NotificationThemeExtension extends Extension {
     // journalctl -f -o cat SYSLOG_IDENTIFIER=testing-by-blueray453
     journal(`Enabled`);
 
-    let window_group = global.get_window_group();
-
-    // window_group.get_children().forEach((child, i) => {
-    //   journal(`Child ${i}: ${child}`);
-    // });
-
-    // window_group.get_children().forEach((actor, i) => {
-    //   let metaWin = actor.get_meta_window?.();   // optional chaining
-    //   if (metaWin) {
-    //     journal(`Child ${i}: ${metaWin.get_window_type()}`);
-    //   }
-
-    // });
-
-    window_group.get_children().forEach(function (actor, i) {
-      if (typeof actor.get_meta_window === 'function') {
-        let metaWin = actor.get_meta_window();
-
-        // Single if statement checking both
-        if (metaWin && metaWin.get_window_type() === 0) {
-          let wmClass = (typeof metaWin.get_wm_class === 'function') ? metaWin.get_wm_class() : 'N/A';
-          journal(`Child ${i}: ${wmClass}`);
-        }
-      }
-    });
+    myButton = new MyPanelButton();
+    Main.panel.addToStatusArea('my-button', myButton);
   }
 
   disable() {
-
+    if (myButton) {
+      myButton.destroy();
+      myButton = null;
+    }
   }
 }
