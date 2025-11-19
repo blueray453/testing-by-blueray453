@@ -10,8 +10,6 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
 import { setLogging, setLogFn, journal } from './utils.js'
 
-let myButton;
-
 class MyPanelButton extends PanelMenu.Button {
 
   static {
@@ -118,14 +116,14 @@ export default class MyExtension extends Extension {
     // journalctl -f -o cat SYSLOG_IDENTIFIER=testing-by-blueray453
     journal(`Enabled`);
 
-    myButton = new MyPanelButton();
+    this.myButton = new MyPanelButton();
     Main.panel.addToStatusArea('my-button', myButton);
   }
 
   disable() {
-    if (myButton) {
-      myButton.destroy();
-      myButton = null;
+    if (this.myButton) {
+      this.myButton.destroy();
+      this.myButton = null;
     }
   }
 }
