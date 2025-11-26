@@ -27,7 +27,7 @@ class SignalEmitter extends GObject.Object {
   }
 }
 
-export default class MyExtension extends Extension {
+export default class MinimalSignalExtension extends Extension {
   constructor(metadata) {
     super(metadata);
     this._emitter = null;
