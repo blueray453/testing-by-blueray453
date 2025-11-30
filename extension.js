@@ -1,86 +1,106 @@
-import GLib from 'gi://GLib';
-import GObject from 'gi://GObject';
-import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
-import { setLogging, setLogFn, journal } from './utils.js'
+import St from 'gi://St';
+import Clutter from 'gi://Clutter';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
-class SignalEmitter extends GObject.Object {
+let button;
+let leftMenu;
+let rightMenu;
+let manager;
 
-  static {
-    GObject.registerClass({
-      Signals: {
-        'custom-clicked': {
-          param_types: [
-            GObject.TYPE_STRING,  // message
-            GObject.TYPE_INT      // code
-          ]
-        }
-      }
-    }, this);
-  }
-
-  constructor() {
-    super(); // ← THIS IS THE FIX - call parent constructor
-  }
-
-  triggerClick(message = "Default message", code = 0) {
-    this.emit('custom-clicked', message, code);
-  }
-}
-
-export default class MinimalSignalExtension extends Extension {
-  constructor(metadata) {
-    super(metadata);
-    this._emitter = null;
-    this._handlerId = null;
-  }
-
+export default class Extension {
   enable() {
-    setLogFn((msg, error = false) => {
-      let level;
-      if (error) {
-        level = GLib.LogLevelFlags.LEVEL_CRITICAL;
-      } else {
-        level = GLib.LogLevelFlags.LEVEL_MESSAGE;
+    // -------------------------
+    // Create the panel button
+    // -------------------------
+    button = new St.Button({
+      label: 'Hello',
+      style_class: 'panel-button',
+      reactive: true,
+      can_focus: true,
+      track_hover: true,
+    });
+
+    Main.panel._centerBox.insert_child_at_index(button, 0);
+
+    // -------------------------
+    // Popup menu manager
+    // -------------------------
+    manager = new PopupMenu.PopupMenuManager(button);
+
+    // -------------------------
+    // Left-click menu
+    // -------------------------
+    leftMenu = new PopupMenu.PopupMenu(button, 0.5, St.Side.TOP);
+    Main.layoutManager.uiGroup.add_child(leftMenu.actor);
+    manager.addMenu(leftMenu);
+
+    let leftItemA = new PopupMenu.PopupMenuItem('Left Option A');
+    leftItemA.connect('activate', () => Main.notify('Left Menu', 'A selected'));
+    leftMenu.addMenuItem(leftItemA);
+
+    let leftItemB = new PopupMenu.PopupMenuItem('Left Option B');
+    leftItemB.connect('activate', () => Main.notify('Left Menu', 'B selected'));
+    leftMenu.addMenuItem(leftItemB);
+
+    // -------------------------
+    // Right-click menu
+    // -------------------------
+    rightMenu = new PopupMenu.PopupMenu(button, 0.5, St.Side.TOP);
+    Main.layoutManager.uiGroup.add_child(rightMenu.actor);
+    manager.addMenu(rightMenu);
+
+    let rightItemX = new PopupMenu.PopupMenuItem('Right Option X');
+    rightItemX.connect('activate', () => Main.notify('Right Menu', 'X selected'));
+    rightMenu.addMenuItem(rightItemX);
+
+    let rightItemY = new PopupMenu.PopupMenuItem('Right Option Y');
+    rightItemY.connect('activate', () => Main.notify('Right Menu', 'Y selected'));
+    rightMenu.addMenuItem(rightItemY);
+
+    // -------------------------
+    // Handle clicks
+    // -------------------------
+    button.connect('button-press-event', (actor, event) => {
+      const btn = event.get_button();
+
+      // Close both menus before opening the one you want
+      leftMenu.close();
+      rightMenu.close();
+
+      if (btn === 1) {
+        leftMenu.open();
+        return Clutter.EVENT_STOP; // stop propagation
+      }
+      if (btn === 3) {
+        rightMenu.open();
+        return Clutter.EVENT_STOP; // stop propagation
       }
 
-      GLib.log_structured(
-        'testing-by-blueray453',
-        level,
-        {
-          MESSAGE: `${msg}`,
-          SYSLOG_IDENTIFIER: 'testing-by-blueray453',
-          CODE_FILE: GLib.filename_from_uri(import.meta.url)[0]
-        }
-      );
+      return Clutter.EVENT_PROPAGATE;
     });
-
-    setLogging(true);
-
-    // journalctl -f -o cat SYSLOG_IDENTIFIER=testing-by-blueray453
-    journal(`Enabled`);
-
-    this._emitter = new SignalEmitter();
-
-    this._handlerId = this._emitter.connect('custom-clicked', (obj, msg, code) => {
-      // Use journal instead of print for logging
-      journal(`Signal object: ${obj}`);
-      journal(`Signal received: ${msg}, code: ${code}`);
-    });
-
-    // Trigger clicks with proper parameters
-    this._emitter.triggerClick("First click", 1);
-    this._emitter.triggerClick("Second click", 2);
-    this._emitter.triggerClick("Third click", 3);
-
   }
 
   disable() {
-    if (this._emitter && this._handlerId) {
-      this._emitter.disconnect(this._handlerId);
-      this._emitter = null;
-      this._handlerId = null;
+    if (manager) {
+      manager.removeMenu(leftMenu);
+      manager.removeMenu(rightMenu);
+      manager = null;
     }
 
-    journal(`Disabled`);
+    if (leftMenu) {
+      leftMenu.destroy();
+      leftMenu = null;
+    }
+
+    if (rightMenu) {
+      rightMenu.destroy();
+      rightMenu = null;
+    }
+
+    if (button) {
+      button.destroy();
+      button = null;
+    }
   }
 }
