@@ -38,13 +38,25 @@ export default class ExampleExtension extends Extension {
 
     journal(`${this._settings}`);
 
-    // List of dynamic keybindings (name → accelerator)
+    // Map key names → actual accelerators and commands
     this._bindings = {
-      'kb-1': '<Super>T',
-      'kb-2': '<Super>B',
-      'kb-3': '<Super>C',
-      'kb-4': '<Super>D',
-      'kb-5': '<Super>E',
+      'kb-1': '<Super>grave',
+      'kb-2': '<Super>a',
+      'kb-3': '<Super>n',
+      'kb-4': '<Super>f',
+      'kb-5': '<Super>c',
+      'kb-6': '<Super>b',
+      'kb-7': '<Super>v',
+      'kb-8': '<Super>r',
+      'kb-9': '<Super>m',
+      'kb-10': '<Super>w',
+      'kb-11': '<Super>Delete',
+      'kb-12': '<Super>o',
+      'kb-13': '<Super>q',
+      'kb-14': 'Print',
+      'kb-15': '<Super>p',
+      'kb-16': '<Super>Tab',
+      'kb-17': '<Super>x'
     };
 
     // Register all keybindings
@@ -65,8 +77,37 @@ export default class ExampleExtension extends Extension {
   }
 
   _onKeyPress(name, accel) {
-    journal(`Keybinding triggered`);
     journal(`Keybinding triggered: ${name} (${accel})`);
+
+    // Map keybinding name → command string
+    const commands = {
+      'kb-1': 'align_windows',
+      'kb-2': 'alacritty-keybinding',
+      'kb-3': 'nemo-keybinding',
+      'kb-4': 'fsearch-keybinding',
+      'kb-5': 'codium-keybinding',
+      'kb-6': 'firefox-keybinding',
+      'kb-7': 'multimedia-keybinding',
+      'kb-8': 'books-keybinding',
+      'kb-9': 'toggle_mark_windows',
+      'kb-10': 'rofi-windows-on-all-workspaces',
+      'kb-11': 'close_other_windows',
+      'kb-12': 'open-file-path',
+      'kb-13': 'capture2text',
+      'kb-14': 'rofi-screenshot',
+      'kb-15': 'toggle_pin_windows',
+      'kb-16': 'toggle-workspace',
+      'kb-17': 'move-all-windows-to-respective-workspaces'
+    };
+
+    const cmd = commands[name];
+    if (cmd) {
+      try {
+        GLib.spawn_command_line_async(cmd);
+      } catch (e) {
+        journal(`Failed to run command for ${name}: ${e}`, true);
+      }
+    }
   }
 
   disable() {
