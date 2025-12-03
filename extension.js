@@ -33,6 +33,7 @@ export default class ExampleExtension extends Extension {
     journal(`Enabled`);
 
     this._settings = this.getSettings('org.gnome.shell.extensions.testing-by-blueray453');
+    journal(`${this._settings}`);
 
     Main.wm.addKeybinding(
       'toggle-action',
@@ -40,7 +41,7 @@ export default class ExampleExtension extends Extension {
       Meta.KeyBindingFlags.NONE,
       Shell.ActionMode.ALL,
       () => {
-        log('Super+T pressed!');
+        journal('Super+T pressed!');
       }
     );
   }
