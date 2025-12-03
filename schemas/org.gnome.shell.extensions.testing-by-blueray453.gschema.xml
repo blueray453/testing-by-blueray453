@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.testing-by-blueray453"
+          path="/org/gnome/shell/extensions/testing-by-blueray453/">
+    <key name="toggle-action" type="as">
+      <default>
+        <![CDATA[['<Super>t']]]>
+      </default>
+    </key>
+  </schema>
+</schemalist>

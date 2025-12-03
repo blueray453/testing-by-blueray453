@@ -7,5 +7,6 @@
     "48",
     "49"
   ],
-  "url": "https://github.com/blueray453/testing-by-blueray453"
+  "url": "https://github.com/blueray453/testing-by-blueray453",
+  "settings-schema": "org.gnome.shell.extensions.testing-by-blueray453"
 }
