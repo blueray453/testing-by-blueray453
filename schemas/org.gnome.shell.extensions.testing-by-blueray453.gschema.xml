@@ -2,10 +2,24 @@
 <schemalist>
   <schema id="org.gnome.shell.extensions.testing-by-blueray453"
           path="/org/gnome/shell/extensions/testing-by-blueray453/">
-    <key name="toggle-action" type="as">
-      <default>
-        <![CDATA[['<Super>t']]]>
-      </default>
+    <key name="kb-1" type="as">
+      <default>[]</default>
+    </key>
+
+    <key name="kb-2" type="as">
+      <default>[]</default>
+    </key>
+
+    <key name="kb-3" type="as">
+      <default>[]</default>
+    </key>
+
+    <key name="kb-4" type="as">
+      <default>[]</default>
+    </key>
+
+    <key name="kb-5" type="as">
+      <default>[]</default>
     </key>
   </schema>
 </schemalist>

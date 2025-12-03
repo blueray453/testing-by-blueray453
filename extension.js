@@ -32,21 +32,49 @@ export default class ExampleExtension extends Extension {
     // journalctl -f -o cat SYSLOG_IDENTIFIER=testing-by-blueray453
     journal(`Enabled`);
 
-    this._settings = this.getSettings('org.gnome.shell.extensions.testing-by-blueray453');
+    this._settings = this.getSettings(
+      'org.gnome.shell.extensions.testing-by-blueray453'
+    );
+
     journal(`${this._settings}`);
 
-    Main.wm.addKeybinding(
-      'toggle-action',
-      this._settings,
-      Meta.KeyBindingFlags.NONE,
-      Shell.ActionMode.ALL,
-      () => {
-        journal('Super+T pressed!');
-      }
-    );
+    // List of dynamic keybindings (name → accelerator)
+    this._bindings = {
+      'kb-1': '<Super>T',
+      'kb-2': '<Super>B',
+      'kb-3': '<Super>C',
+      'kb-4': '<Super>D',
+      'kb-5': '<Super>E',
+    };
+
+    // Register all keybindings
+    for (const [name, accel] of Object.entries(this._bindings)) {
+
+      // Create setting value dynamically
+      this._settings.set_strv(name, [accel]);
+
+      // Register keybinding
+      Main.wm.addKeybinding(
+        name,
+        this._settings,
+        Meta.KeyBindingFlags.NONE,
+        Shell.ActionMode.ALL,
+        () => this._onKeyPress(name, accel)
+      );
+    }
+  }
+
+  _onKeyPress(name, accel) {
+    journal(`Keybinding triggered`);
+    journal(`Keybinding triggered: ${name} (${accel})`);
   }
 
   disable() {
-    this._settings = null;
+    // Remove all keybindings
+    if (this._bindings) {
+      for (const name of Object.keys(this._bindings)) {
+        Main.wm.removeKeybinding(name);
+      }
+    }
   }
 }
