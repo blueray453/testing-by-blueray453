@@ -48,13 +48,14 @@ export default class MyPanelButton extends PanelMenu.Button {
     // journalctl -f -o cat SYSLOG_IDENTIFIER=testing-by-blueray453
     journal(`Enabled`);
 
-    this._icon.connect('button-press-event', (actor, event) => {
+    this.connect('button-press-event', (actor, event) => {
       this._logWindowInfo();
     });
 
     // Add button to the top-right UI for testing
     // Main.layoutManager.addChrome(button);
     // Main.panel._centerBox.insert_child_at_index(container, 0);
+    Main.panel.addToStatusArea('my-button', this);
   }
 
   _logWindowInfo(){
