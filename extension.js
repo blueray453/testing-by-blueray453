@@ -59,20 +59,26 @@ export default class MyPanelButton extends PanelMenu.Button {
   }
 
   _logWindowInfo(){
-    let windows_by_stacking = Display.sort_windows_by_stacking(global.get_window_actors().map(actor => actor.meta_window).filter(win => win.get_window_type() === Meta.WindowType.NORMAL));
+    // let active_workspace = WorkspaceManager.get_active_workspace();
+    // let windows_by_stacking = Display.sort_windows_by_stacking(global.get_window_actors().map(actor => actor.meta_window).filter(win => win.get_window_type() === Meta.WindowType.NORMAL)).filter(win =>
+    //   win.get_workspace() === active_workspace
+    // );
 
-    journal('windows_by_stacking:');
-    windows_by_stacking.forEach(win => journal(`${win.get_title()}`));
+    // journal('windows_by_stacking:');
+    // windows_by_stacking.forEach(win => journal(`${win.get_title()}`));
 
-    let tab_list = Display.get_tab_list(0, WorkspaceManager.get_active_workspace());
+    // let tab_list = Display.get_tab_list(0, active_workspace);
 
-    tab_list.forEach(win => journal(`${win.get_title()}`));
+    // journal('windows_tabs:');
+    // tab_list.forEach(win => journal(`${win.get_title()}`));
 
-    let window_group = global.get_window_group();
-    journal('window_group:', window_group);
+    let window_group = global.get_window_group().get_children();
 
-    let top_window_group = global.get_top_window_group();
-    journal('top_window_group:', top_window_group);
+    window_group.forEach(win => {
+      if (win.is_mapped() && win.is_visible() && win?.meta_window?.window_type === 0){
+        journal(`${win.meta_window.get_title()}`)
+      }
+    });
   }
 
   disable() {
