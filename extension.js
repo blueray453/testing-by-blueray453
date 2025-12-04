@@ -48,7 +48,7 @@ export default class MyPanelButton extends PanelMenu.Button {
     // journalctl -f -o cat SYSLOG_IDENTIFIER=testing-by-blueray453
     journal(`Enabled`);
 
-    this.connect('button-press-event', (actor, event) => {
+    this._buttonHandlerId = this.connect('button-press-event', (actor, event) => {
       this._logWindowInfo();
     });
 
@@ -76,6 +76,11 @@ export default class MyPanelButton extends PanelMenu.Button {
   }
 
   disable() {
+    if (this._buttonHandlerId) {
+      this.disconnect(this._buttonHandlerId);
+      this._buttonHandlerId = null; // optional: clear the reference
+    }
+
     journal('Extension disabled: all keybindings removed and settings cleared.');
   }
 }
